@@ -832,14 +832,18 @@ function renderCard() {
   document.getElementById('card-q').textContent = c.q;
   document.getElementById('card-a').textContent = c.a;
 
-  // Progress
-  const seen = scores.correct + scores.wrong;
-  const pct = Math.round((seen / filtered.length) * 100);
+  // --- UPDATED PROGRESS LOGIC ---
+  // Use (idx + 1) so that being on the first card shows some progress, 
+  // or use (idx) if you want it to show 0% until the first card is completed.
+  const pct = Math.round(((idx + 1) / filtered.length) * 100);
+  
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('prog-label').textContent = `Card ${idx + 1} of ${filtered.length}`;
   document.getElementById('prog-pct').textContent = pct + '%';
+  // ------------------------------
 
-  // Scores
+  // Scores (Keep these as is to track performance)
+  const seen = scores.correct + scores.wrong;
   document.getElementById('s-correct').textContent = scores.correct;
   document.getElementById('s-wrong').textContent = scores.wrong;
   document.getElementById('s-remaining').textContent = filtered.length - seen;
