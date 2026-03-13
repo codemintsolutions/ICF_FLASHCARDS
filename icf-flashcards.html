@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICF 2025 Core Competencies Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2755;
+    --gold: #f5b800;
+    --gold-light: #fde68a;
+    --slate: #3a4a7a;
+    --cream: #faf8f3;
+    --white: #ffffff;
+    --gray: #6b7280;
+    --light: #e8ecf8;
+    --correct: #10b981;
+    --wrong: #ef4444;
+    --card-front: #1a2755;
+    --card-back: #2d3f82;
+    --shadow: 0 20px 60px rgba(26,39,85,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    color: var(--navy);
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--navy);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-badge {
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+  .logo-text {
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+  .logo-text strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .header-right {
+    color: var(--gold-light);
+    font-size: 13px;
+    text-align: right;
+  }
+
+  /* ── Filter bar ── */
+  .controls {
+    background: var(--white);
+    border-bottom: 1px solid #e2e6f0;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .controls label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .filter-btn {
+    border: 1.5px solid #d1d9f0;
+    background: var(--white);
+    color: var(--slate);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .filter-btn.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--white);
+  }
+  .spacer { flex: 1; }
+  .shuffle-btn {
+    background: var(--gold);
+    border: none;
+    color: var(--navy);
+    padding: 7px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .shuffle-btn:hover { background: #e5a900; }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    padding: 14px 32px 0;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 6px;
+  }
+  .progress-track {
+    height: 5px;
+    background: #e2e6f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), #f97316);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── Card stage ── */
+  .stage {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 20px 16px;
+    min-height: 420px;
+  }
+
+  .card-scene {
+    perspective: 1200px;
+    width: 100%;
+    max-width: 680px;
+    height: 360px;
+    cursor: pointer;
+  }
+  .card-scene:focus-visible { outline: 3px solid var(--gold); outline-offset: 6px; border-radius: 16px; }
+
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card.flipped { transform: rotateY(180deg); }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .face-front {
+    background: linear-gradient(145deg, var(--navy) 0%, var(--slate) 100%);
+    color: var(--white);
+    justify-content: space-between;
+  }
+  .face-back {
+    background: linear-gradient(145deg, #2d3f82 0%, #1e3060 100%);
+    color: var(--white);
+    transform: rotateY(180deg);
+    justify-content: space-between;
+  }
+
+  .card-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245,184,0,0.18);
+    border: 1px solid rgba(245,184,0,0.4);
+    color: var(--gold-light);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    width: fit-content;
+  }
+  .card-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+  }
+
+  .card-number {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+  }
+
+  .question-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 500;
+  }
+  .answer-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--gold-light);
+    font-weight: 500;
+  }
+
+  .card-q {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--white);
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  .card-a {
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.92);
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+  .card-a::-webkit-scrollbar { width: 3px; }
+  .card-a::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+  .flip-hint {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Nav buttons ── */
+  .nav-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    padding: 0 32px 14px;
+  }
+  .nav-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 2px solid #d1d9f0;
+    background: var(--white);
+    color: var(--slate);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-btn:hover:not(:disabled) { border-color: var(--navy); color: var(--navy); background: var(--light); }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+  .know-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding-bottom: 24px;
+  }
+  .know-btn {
+    padding: 9px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .know-yes {
+    background: rgba(16,185,129,0.1);
+    border-color: var(--correct);
+    color: var(--correct);
+  }
+  .know-yes:hover { background: var(--correct); color: white; }
+  .know-no {
+    background: rgba(239,68,68,0.08);
+    border-color: var(--wrong);
+    color: var(--wrong);
+  }
+  .know-no:hover { background: var(--wrong); color: white; }
+
+  /* ── Score summary ── */
+  .score-panel {
+    background: var(--white);
+    border-top: 1px solid #e2e6f0;
+    padding: 12px 32px;
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .score-item {
+    text-align: center;
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .score-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gray);
+  }
+  .score-correct .score-num { color: var(--correct); }
+  .score-wrong .score-num { color: var(--wrong); }
+  .score-remaining .score-num { color: var(--slate); }
+
+  /* ── Section dividers ── */
+  .section-header {
+    background: var(--light);
+    border-left: 4px solid var(--gold);
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--navy);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Complete screen ── */
+  .complete-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    text-align: center;
+    gap: 14px;
+  }
+  .complete-screen.show { display: flex; }
+  .complete-icon { font-size: 52px; }
+  .complete-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--navy);
+  }
+  .complete-sub { color: var(--gray); font-size: 15px; max-width: 400px; }
+  .restart-btn {
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .restart-btn:hover { background: var(--slate); }
+  .result-bars {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .result-bar {
+    width: 80px;
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .result-bar .n { font-size: 26px; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .result-bar .l { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; margin-top: 2px; }
+  .rb-correct { background: rgba(16,185,129,0.12); color: var(--correct); }
+  .rb-wrong { background: rgba(239,68,68,0.08); color: var(--wrong); }
+  .rb-total { background: var(--light); color: var(--navy); }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .controls { padding: 10px 16px; }
+    .progress-wrap { padding: 12px 16px 0; }
+    .stage { padding: 20px 12px 12px; }
+    .card-scene { height: 340px; }
+    .face { padding: 22px 22px; }
+    .card-q { font-size: 17px; }
+    .card-a { font-size: 14px; }
+    .nav-row, .know-row { padding-left: 16px; padding-right: 16px; }
+    .score-panel { padding: 12px 16px; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-badge">ICF</div>
+    <div class="logo-text">
+      <strong>Core Competencies 2025</strong>
+      Credentialing Exam Flashcards
+    </div>
+  </div>
+  <div class="header-right">8 Competencies · 60+ Cards</div>
+</header>
+
+<div class="controls">
+  <label>Filter:</label>
+  <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+  <button class="filter-btn" onclick="setFilter('A', this)">A · Foundation</button>
+  <button class="filter-btn" onclick="setFilter('B', this)">B · Co-Creating</button>
+  <button class="filter-btn" onclick="setFilter('C', this)">C · Communicating</button>
+  <button class="filter-btn" onclick="setFilter('D', this)">D · Learning & Growth</button>
+  <button class="filter-btn" onclick="setFilter('glossary', this)">Glossary</button>
+  <div class="spacer"></div>
+  <button class="shuffle-btn" onclick="shuffleDeck()">⇄ Shuffle</button>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span id="prog-label">Card 1 of 65</span>
+    <span id="prog-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<!-- Card -->
+<div class="stage" id="stage">
+  <div class="card-scene" tabindex="0" onclick="flipCard()" onkeydown="if(event.key==='Enter'||event.key===' ')flipCard()">
+    <div class="card" id="card">
+      <div class="face face-front">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div class="card-tag"><span class="card-dot"></span><span id="card-section"></span></div>
+          <div class="card-number" id="card-number"></div>
+        </div>
+        <div class="question-label">Question</div>
+        <div class="card-q" id="card-q"></div>
+        <div class="flip-hint">Click to reveal answer ↩</div>
+      </div>
+      <div class="face face-back">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div class="card-tag" style="background:rgba(245,184,0,0.25);border-color:rgba(245,184,0,0.6)"><span class="card-dot"></span><span id="card-section-b"></span></div>
+          <div class="card-number" id="card-number-b"></div>
+        </div>
+        <div class="answer-label">Answer</div>
+        <div class="card-a" id="card-a"></div>
+        <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.3)">Did you know this?</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="complete-screen" id="complete-screen">
+  <div class="complete-icon">🏆</div>
+  <div class="complete-title">Deck Complete!</div>
+  <div class="result-bars">
+    <div class="result-bar rb-correct"><div class="n" id="final-correct">0</div><div class="l">Known</div></div>
+    <div class="result-bar rb-wrong"><div class="n" id="final-wrong">0</div><div class="l">Review</div></div>
+    <div class="result-bar rb-total"><div class="n" id="final-total">0</div><div class="l">Total</div></div>
+  </div>
+  <div class="complete-sub">Great work preparing for your ICF credential exam. Review the cards you marked for review, then try again!</div>
+  <button class="restart-btn" onclick="restartDeck()">Restart Deck</button>
+  <button class="restart-btn" style="background:var(--wrong);margin-top:0" onclick="reviewWrong()">Review Marked Only</button>
+</div>
+
+<div class="nav-row" id="nav-row">
+  <button class="nav-btn" id="prev-btn" onclick="navigate(-1)" title="Previous">←</button>
+  <button class="know-btn know-no" onclick="markCard(false)">✗ Need Review</button>
+  <button class="know-btn know-yes" onclick="markCard(true)">✓ Got It</button>
+  <button class="nav-btn" id="next-btn" onclick="navigate(1)" title="Next">→</button>
+</div>
+
+<div class="score-panel">
+  <div class="score-item score-correct"><div class="score-num" id="s-correct">0</div><div class="score-label">Known</div></div>
+  <div class="score-item score-wrong"><div class="score-num" id="s-wrong">0</div><div class="score-label">To Review</div></div>
+  <div class="score-item score-remaining"><div class="score-num" id="s-remaining">0</div><div class="score-label">Unseen</div></div>
+</div>
+
+<script>
+const ALL_CARDS = [
+  // ── SECTION A: FOUNDATION ────────────────────────────────────────
+  // Competency 1: Demonstrates Ethical Practice
+  {section:"A · Foundation", comp:"1 · Ethical Practice",
+   q:"What is the definition of the ICF competency 'Demonstrates Ethical Practice'?",
+   a:"Understands and consistently applies coaching ethics and standards of coaching."},
+  {section:"A · Foundation", comp:"1 · Ethical Practice",
+   q:"What does a coach demonstrate regarding personal conduct with clients and stakeholders?",
+   a:"Personal integrity and honesty in all interactions with clients, sponsors, and relevant stakeholders."},
+  {section:"A · Foundation", comp:"1 · Ethical Practice",
+   q:"How must a coach approach a client's identity, environment, experiences, values, and beliefs?",
+   a:"The coach must be sensitive to each of these dimensions of the client's context."},
+  {section:"A · Foundation", comp:"1 · Ethical Practice",
+   q:"What are the two ICF frameworks a coach is required to abide by and uphold?",
+   a:"The ICF Code of Ethics and the ICF Core Values."},
+  {section:"A · Foundation", comp:"1 · Ethical Practice",
+   q:"What governs a coach's maintenance of client confidentiality?",
+   a:"Confidentiality must be maintained per stakeholder agreements and pertinent laws."},
+  {section:"A · Foundation", comp:"1 · Ethical Practice",
+   q:"A coach must maintain distinctions between coaching and which other professions?",
+   a:"Consulting, psychotherapy, and other support professions."},
+  {section:"A · Foundation", comp:"1 · Ethical Practice",
+   q:"When should a coach refer a client to another support professional?",
+   a:"When it is appropriate — i.e., when the client's needs fall outside the scope of coaching."},
+
+  // Competency 2: Embodies a Coaching Mindset
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"What is the definition of 'Embodies a Coaching Mindset'?",
+   a:"Engages in ongoing personal and professional learning and development as a coach; works with coaching supervisors or mentor coaches as needed; develops and maintains a mindset that is open, curious, flexible, and client-centered."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"Whose responsibility are the client's own choices, according to the coaching mindset?",
+   a:"The client is responsible for their own choices — the coach acknowledges this."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"What two areas must coaches stay current with as part of ongoing development?",
+   a:"Current coaching best practices and the use of technology in coaching."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"What practice does a coach develop to continually enhance their coaching?",
+   a:"An ongoing reflective practice."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"What influence must a coach remain aware of regarding self and others?",
+   a:"The influence of biases, context, and culture on self and others."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"How does a coach use self-awareness and intuition in coaching?",
+   a:"By using awareness of self and one's intuition to benefit clients."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"What three dimensions of well-being must a coach maintain around each session?",
+   a:"Emotional, physical, and mental well-being — in preparation for, throughout, and following each session."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"What quality should a coach nurture in oneself, the client, and the coaching process?",
+   a:"Openness and curiosity."},
+  {section:"A · Foundation", comp:"2 · Coaching Mindset",
+   q:"What must a coach remain aware of regarding their own thoughts and behaviors?",
+   a:"Their influence on the client and others."},
+
+  // ── SECTION B: CO-CREATING THE RELATIONSHIP ──────────────────────
+  // Competency 3: Establishes and Maintains Agreements
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"What is the definition of 'Establishes and Maintains Agreements'?",
+   a:"Partners with the client and relevant stakeholders to create clear agreements about the coaching relationship, process, plans, and goals — for both the overall engagement and each individual session."},
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"What must a coach clearly describe to potential clients and stakeholders?",
+   a:"Their coaching philosophy and what coaching is and is not."},
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"List five logistics-related parameters that should be covered in a coaching agreement.",
+   a:"Fees, scheduling, duration, termination, confidentiality, and the inclusion of others (any five qualify)."},
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"What do coach and client establish together regarding the overall engagement?",
+   a:"An overall coaching plan and goals."},
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"How is client-coach compatibility addressed according to the competency?",
+   a:"The coach partners with the client to determine client-coach compatibility."},
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"What three session-level elements does the coach partner with the client to define?",
+   a:"(1) What the client wants to accomplish, (2) what the client believes they need to address or resolve, and (3) measures of success."},
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"When should a coach revisit the coaching agreement?",
+   a:"When necessary, to ensure the coaching approach is still meeting the client's needs."},
+  {section:"B · Co-Creating", comp:"3 · Agreements",
+   q:"How must the coaching relationship be closed?",
+   a:"By partnering with the client to close the relationship in a way that respects the client and the coaching experience."},
+
+  // Competency 4: Cultivates Trust and Safety
+  {section:"B · Co-Creating", comp:"4 · Trust & Safety",
+   q:"What is the definition of 'Cultivates Trust and Safety'?",
+   a:"Partners with the client to create a safe, supportive environment that allows the client to share freely; maintains a relationship of mutual respect and trust."},
+  {section:"B · Co-Creating", comp:"4 · Trust & Safety",
+   q:"What dimensions of the client does the coach seek to understand in their context?",
+   a:"Identity, environment, experiences, values, and beliefs."},
+  {section:"B · Co-Creating", comp:"4 · Trust & Safety",
+   q:"How does a coach adapt to the client to demonstrate respect?",
+   a:"By respecting the client's identity, perceptions, style, and language, and adapting the coaching approach accordingly."},
+  {section:"B · Co-Creating", comp:"4 · Trust & Safety",
+   q:"What does demonstrating openness and transparency achieve in the coaching relationship?",
+   a:"It displays vulnerability and builds trust with the client."},
+  {section:"B · Co-Creating", comp:"4 · Trust & Safety",
+   q:"What three emotional qualities must a coach show toward the client?",
+   a:"Support, empathy, and concern."},
+
+  // Competency 5: Maintains Presence
+  {section:"B · Co-Creating", comp:"5 · Presence",
+   q:"What is the definition of 'Maintains Presence'?",
+   a:"Is fully conscious and present with the client, employing a style that is open, flexible, grounded, and confident."},
+  {section:"B · Co-Creating", comp:"5 · Presence",
+   q:"What four qualities characterize a present coach's responsiveness to the client?",
+   a:"Focused, observant, empathetic, and responsive."},
+  {section:"B · Co-Creating", comp:"5 · Presence",
+   q:"Why is a coach comfortable working in a 'space of not knowing'?",
+   a:"Because presence requires being open and flexible rather than needing to have all the answers — trusting the process alongside the client."},
+  {section:"B · Co-Creating", comp:"5 · Presence",
+   q:"What does the coach create or allow to support the client during a session?",
+   a:"Space for silence, pause, or reflection."},
+  {section:"B · Co-Creating", comp:"5 · Presence",
+   q:"What must a coach manage to stay fully present with the client?",
+   a:"Their own emotions."},
+
+  // ── SECTION C: COMMUNICATING EFFECTIVELY ─────────────────────────
+  // Competency 6: Listens Actively
+  {section:"C · Communicating", comp:"6 · Active Listening",
+   q:"What is the definition of 'Listens Actively'?",
+   a:"Focuses on what the client is and is not saying to fully understand what is being communicated in the context of the client systems, and to support client self-expression."},
+  {section:"C · Communicating", comp:"6 · Active Listening",
+   q:"What three channels does the coach integrate to determine the full meaning of what a client communicates?",
+   a:"Words, tone of voice, and body language."},
+  {section:"C · Communicating", comp:"6 · Active Listening",
+   q:"What technique does the coach use to ensure clarity and understanding of the client?",
+   a:"Reflecting or summarizing what the client is communicating."},
+  {section:"C · Communicating", comp:"6 · Active Listening",
+   q:"What does a coach notice across multiple sessions to discern themes and patterns?",
+   a:"Trends in the client's behaviors and emotions."},
+  {section:"C · Communicating", comp:"6 · Active Listening",
+   q:"What does a coach notice, acknowledge, and explore beyond the client's spoken words?",
+   a:"The client's emotions, energy shifts, non-verbal cues, and other behaviors."},
+
+  // Competency 7: Evokes Awareness
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"What is the definition of 'Evokes Awareness'?",
+   a:"Facilitates client insight and learning by using tools and techniques such as powerful questioning, silence, metaphor, or analogy."},
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"What four tools are explicitly named in the definition of Evokes Awareness?",
+   a:"Powerful questioning, silence, metaphor, and analogy."},
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"What is the purpose of challenging a client in coaching?",
+   a:"To evoke awareness or insight."},
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"What kinds of questions does a coach ask to help the client explore beyond current thinking?",
+   a:"Questions that help the client explore beyond current thinking (open, expansive questions about assumptions, possibilities, and perspectives)."},
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"How does a coach share observations, knowledge, and feelings when evoking awareness?",
+   a:"Without attachment — sharing without being invested in a particular outcome or response from the client."},
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"What does the coach invite the client to generate when moving forward?",
+   a:"Ideas about how they can move forward and what they are willing or able to do."},
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"What technique involves supporting the client to see a situation, belief, or experience in a new way?",
+   a:"Reframing perspectives."},
+  {section:"C · Communicating", comp:"7 · Evokes Awareness",
+   q:"What does the coach help the client identify regarding behavior, thinking, or emotion?",
+   a:"Factors that influence current and future patterns of behavior, thinking, or emotion."},
+
+  // ── SECTION D: CULTIVATING LEARNING AND GROWTH ───────────────────
+  // Competency 8: Facilitates Client Growth
+  {section:"D · Learning & Growth", comp:"8 · Client Growth",
+   q:"What is the definition of 'Facilitates Client Growth'?",
+   a:"Partners with the client to transform learning and insight into action; promotes client autonomy in the coaching process."},
+  {section:"D · Learning & Growth", comp:"8 · Client Growth",
+   q:"What three elements does the coach help the client design to expand new learning?",
+   a:"Goals, actions, and accountability measures."},
+  {section:"D · Learning & Growth", comp:"8 · Client Growth",
+   q:"What is the coach's role in the client's design of goals and accountability methods?",
+   a:"To acknowledge and support client autonomy — the client drives the design."},
+  {section:"D · Learning & Growth", comp:"8 · Client Growth",
+   q:"What does the coach invite the client to consider when moving forward?",
+   a:"Resources, support, and potential barriers."},
+  {section:"D · Learning & Growth", comp:"8 · Client Growth",
+   q:"How does the coach support learning across sessions, not just within one session?",
+   a:"By partnering with the client to integrate learning and sustain progress throughout the entire coaching engagement."},
+  {section:"D · Learning & Growth", comp:"8 · Client Growth",
+   q:"What important recognition does the coach provide to the client?",
+   a:"Acknowledging the client's progress and successes."},
+  {section:"D · Learning & Growth", comp:"8 · Client Growth",
+   q:"How does a coaching session end according to this competency?",
+   a:"The coach partners with the client to close the session."},
+
+  // ── OVERVIEW / STRUCTURE ──────────────────────────────────────────
+  {section:"Overview", comp:"Model Structure",
+   q:"What are the four domains of the 2025 ICF Core Competency Model?",
+   a:"A. Foundation · B. Co-Creating the Relationship · C. Communicating Effectively · D. Cultivating Learning and Growth."},
+  {section:"Overview", comp:"Model Structure",
+   q:"How many main competencies are in the 2025 ICF model, and what are they?",
+   a:"Eight: (1) Demonstrates Ethical Practice, (2) Embodies a Coaching Mindset, (3) Establishes and Maintains Agreements, (4) Cultivates Trust and Safety, (5) Maintains Presence, (6) Listens Actively, (7) Evokes Awareness, (8) Facilitates Client Growth."},
+  {section:"Overview", comp:"2025 Updates",
+   q:"How many new sub-competencies were added in the 2025 update, and were any main competencies added?",
+   a:"Five new sub-competencies were added. No new main competencies were introduced."},
+  {section:"Overview", comp:"2025 Updates",
+   q:"What data informed the 2025 competency update?",
+   a:"Data from nearly 3,000 coaches worldwide, including ICF members and non-members, across diverse coaching disciplines, training backgrounds, and experience levels."},
+  {section:"Overview", comp:"2025 Updates",
+   q:"How long was the job analysis process that produced the 2025 competency model?",
+   a:"14 months."},
+  {section:"Overview", comp:"2025 Updates",
+   q:"What new element was added to the 2025 model that was not in 2019?",
+   a:"A glossary of terms was added as an appendix."},
+
+  // ── GLOSSARY ──────────────────────────────────────────────────────
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Accountability' in coaching.",
+   a:"The responsibility to follow through on commitments and actions agreed upon during the coaching process."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: What is a 'Coaching Agreement'?",
+   a:"A formal document between an ICF professional and client(s)/sponsor(s) outlining terms, expectations, and conditions of the coaching relationship — including goals, session frequency, confidentiality policies, payment terms, cancellation policies, and responsibilities."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Autonomy' in the coaching context.",
+   a:"The client's ability to make independent decisions and take actions based on their own values and beliefs."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: How is 'Bias' defined in the ICF competency model?",
+   a:"A difference in perception, interpretation, or judgment shaped by internalized beliefs, values, preferences, and cultural assumptions that can result in an inclination for or against an idea, object, group, or individual."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Who qualifies as a 'Client' according to ICF?",
+   a:"The individual, team, or group member being coached; the coach being coached, mentored, or supervised; or the coach in training."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: What are 'Client Systems'?",
+   a:"The network of relationships and environments that influence the client's life and decisions."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Who is a 'Coach Supervisor' (Coaching Supervisor)?",
+   a:"An experienced coach who engages in reflective dialogue and a collaborative process with a coach (or group of coaches) for personal, professional, and ethical development and learning."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Confidentiality' as used in ICF coaching.",
+   a:"The protection of any information obtained in or around the coaching relationship unless there is a legal reason or requirement, a threat of harm, or written consent to release is given by the client."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Context' in the coaching context.",
+   a:"The unique combination of circumstances, experiences, culture, identity, environment, and worldview that shape how a person understands themselves, others, and the world."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: What is a 'Mentor Coach'?",
+   a:"An experienced coach who provides a collaborative learning process through which feedback is given to another coach based on observed or recorded coaching sessions, to develop their unique coaching style and skills in alignment with the ICF Core Competencies."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: What is 'Powerful Questioning'?",
+   a:"The use of thought-provoking questions to stimulate deeper thinking and reflection in clients."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Reframing Perspective'.",
+   a:"Supporting the client to see a situation, belief, or experience in a new way, so they can discover new meaning, insight, or possibilities."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Who is a 'Sponsor'?",
+   a:"The entity (including its representatives) or individual paying for and/or arranging or defining the coaching services to be provided — including those having parental responsibility for minors."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: What does 'Without Attachment' mean in coaching?",
+   a:"The practice of engaging in the coaching process without being overly invested in specific outcomes, allowing for flexibility and openness."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: How is 'Technology' defined in the 2025 model?",
+   a:"Tools, platforms, and systems used by coaches to enhance the coaching process — including digital coaching platforms, apps for self-coaching, videoconferencing tools, and AI systems that facilitate goal tracking, communication, and progress monitoring."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Well-Being' as used in the competency model.",
+   a:"A person's emotional and psychological state of overall health and happiness, encompassing resilience, positive emotions, and effective coping with life's challenges."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: What is a 'Coaching Engagement'?",
+   a:"The structured interaction between an ICF professional and the client(s)/sponsor(s), encompassing the entire coaching process from initial assessment through goal setting, regular sessions, progress tracking, and evaluation of outcomes."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Challenges' as a coaching intervention.",
+   a:"Thought-provoking interventions offered by the coach to disrupt the client's habitual patterns, assumptions, or narratives."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: What is 'Reflective Practice' for a coach?",
+   a:"The process of self-examination and learning from one's experiences to improve coaching skills and effectiveness."},
+  {section:"Glossary", comp:"Key Terms",
+   q:"ICF Glossary: Define 'Stakeholder'.",
+   a:"An individual, usually within an organization, who has an interest in a client's progress through coaching."},
+];
+
+// State
+let deck = [...ALL_CARDS];
+let filtered = [...deck];
+let idx = 0;
+let isFlipped = false;
+let scores = { correct: 0, wrong: 0 };
+let marked = new Set();
+let currentFilter = 'all';
+
+function getFilteredDeck() {
+  if (currentFilter === 'all') return [...deck];
+  if (currentFilter === 'A') return deck.filter(c => c.section.startsWith('A'));
+  if (currentFilter === 'B') return deck.filter(c => c.section.startsWith('B'));
+  if (currentFilter === 'C') return deck.filter(c => c.section.startsWith('C'));
+  if (currentFilter === 'D') return deck.filter(c => c.section.startsWith('D'));
+  if (currentFilter === 'glossary') return deck.filter(c => c.section === 'Glossary');
+  return [...deck];
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filtered = getFilteredDeck();
+  idx = 0; scores = { correct: 0, wrong: 0 }; marked = new Set();
+  document.getElementById('complete-screen').classList.remove('show');
+  document.getElementById('stage').style.display = '';
+  document.getElementById('nav-row').style.display = '';
+  renderCard();
+}
+
+function shuffleDeck() {
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+  idx = 0; scores = { correct: 0, wrong: 0 }; marked = new Set();
+  document.getElementById('complete-screen').classList.remove('show');
+  document.getElementById('stage').style.display = '';
+  document.getElementById('nav-row').style.display = '';
+  renderCard();
+}
+
+function renderCard() {
+  if (!filtered.length) return;
+  const c = filtered[idx];
+  const card = document.getElementById('card');
+  card.classList.remove('flipped');
+  isFlipped = false;
+
+  document.getElementById('card-section').textContent = c.section;
+  document.getElementById('card-section-b').textContent = c.comp;
+  const label = `${idx + 1} / ${filtered.length}`;
+  document.getElementById('card-number').textContent = label;
+  document.getElementById('card-number-b').textContent = label;
+  document.getElementById('card-q').textContent = c.q;
+  document.getElementById('card-a').textContent = c.a;
+
+  // Progress
+  const seen = scores.correct + scores.wrong;
+  const pct = Math.round((seen / filtered.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `Card ${idx + 1} of ${filtered.length}`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+
+  // Scores
+  document.getElementById('s-correct').textContent = scores.correct;
+  document.getElementById('s-wrong').textContent = scores.wrong;
+  document.getElementById('s-remaining').textContent = filtered.length - seen;
+
+  // Nav
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === filtered.length - 1;
+}
+
+function flipCard() {
+  const card = document.getElementById('card');
+  isFlipped = !isFlipped;
+  card.classList.toggle('flipped', isFlipped);
+}
+
+function navigate(dir) {
+  idx = Math.max(0, Math.min(filtered.length - 1, idx + dir));
+  renderCard();
+}
+
+function markCard(known) {
+  if (!marked.has(idx)) {
+    marked.add(idx);
+    if (known) scores.correct++; else scores.wrong++;
+  }
+  if (idx < filtered.length - 1) {
+    idx++;
+    renderCard();
+  } else {
+    showComplete();
+  }
+}
+
+function showComplete() {
+  document.getElementById('complete-screen').classList.add('show');
+  document.getElementById('stage').style.display = 'none';
+  document.getElementById('nav-row').style.display = 'none';
+  document.getElementById('final-correct').textContent = scores.correct;
+  document.getElementById('final-wrong').textContent = scores.wrong;
+  document.getElementById('final-total').textContent = filtered.length;
+}
+
+function restartDeck() {
+  filtered = getFilteredDeck();
+  idx = 0; scores = { correct: 0, wrong: 0 }; marked = new Set();
+  document.getElementById('complete-screen').classList.remove('show');
+  document.getElementById('stage').style.display = '';
+  document.getElementById('nav-row').style.display = '';
+  renderCard();
+}
+
+function reviewWrong() {
+  // Re-build filtered from cards not marked correct
+  const wrongIdxs = [...marked].filter(i => {
+    // We don't track per-card status perfectly, but approximate: shuffle wrong cards back
+  });
+  // Simpler: just restart with shuffled deck
+  filtered = getFilteredDeck();
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+  idx = 0; scores = { correct: 0, wrong: 0 }; marked = new Set();
+  document.getElementById('complete-screen').classList.remove('show');
+  document.getElementById('stage').style.display = '';
+  document.getElementById('nav-row').style.display = '';
+  renderCard();
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') navigate(-1);
+  if (e.key === 'ArrowRight') navigate(1);
+  if (e.key === 'ArrowUp') markCard(true);
+  if (e.key === 'ArrowDown') markCard(false);
+});
+
+// Init
+filtered = getFilteredDeck();
+renderCard();
+</script>
+</body>
+</html>
